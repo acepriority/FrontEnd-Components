@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <title>Document</title>
 </head>
 <style>
@@ -84,7 +85,6 @@
         background-color: #f3f3f3;
         border-radius: 10px;
         border: 1px solid #ccc;
-        margin-top: 8px;
     }
 
     .upload-progress-bar {
@@ -112,7 +112,7 @@
     }
 
     .file-details h4, .file-size h4,
-    .remove-button button h4{
+    .action-button button h4{
         margin: 0;
         padding: 0;
         font-weight: bold;
@@ -120,7 +120,10 @@
     }
 
     .upload-status {
-        text-align: center;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
     .upload-status h4,
@@ -128,7 +131,7 @@
         color: gray;
     }
 
-    .remove-button button {
+    .action-button > button:nth-child(1) {
         padding: 0.4rem;
         border-radius: 6px;
         border: none;
@@ -137,9 +140,17 @@
         cursor: pointer;
     }
 
+    .action-button > button:nth-child(2) {
+        padding: 0.4rem;
+        border-radius: 6px;
+        border: none;
+        background-color: #ddf6cd;
+        color: #008b00;
+        cursor: pointer;
+    }
+
     .completed-icon {
         color: green;
-        font-size: 14px;
     }
 </style>
 <body>
@@ -200,9 +211,12 @@
             }
         });
 
+        let selectedFile = null;  // Define a global variable to store the file
+
         function handleFiles(files) {
             const file = files[0];
-    
+            selectedFile = file;  // Store the selected file globally
+        
             if (file && file.size < 50 * 1024 * 1024) {
                 const fileName = file.name;
                 const fileSize = (file.size / 1024 / 1024).toFixed(2);
@@ -225,51 +239,97 @@
                                 <h4>0 MB of ${fileSize} MB</h4>
                             </div>
                             <div class="action-buttons" style="display: none;">
-                                <div class="remove-button">
+                                <div class="action-button">
                                     <button>Remove</button>
+                                    <button>Send</button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 `;
-    
+        
                 previewArea.innerHTML = '';
                 previewArea.appendChild(uploadContainer);
-    
+        
                 simulateUpload(uploadContainer, fileSize);
             } else {
                 alert('File is too large or unsupported.');
             }
         }
-    
+        
         function simulateUpload(uploadContainer, fileSize) {
             const progressBar = uploadContainer.querySelector('.upload-progress-bar');
             const uploadStatus = uploadContainer.querySelector('.upload-status h4');
             const fileSizeText = uploadContainer.querySelector('.file-size h4');
             const removeButtonContainer = uploadContainer.querySelector('.action-buttons');
-    
+        
             let progress = 0;
             const interval = setInterval(() => {
                 if (progress >= 100) {
                     clearInterval(interval);
-                    uploadStatus.innerHTML = `<span class="material-symbols-outlined completed-icon">check_circle</span> Completed`;
+                    uploadStatus.innerHTML = `<i class="fa fa-check-circle completed-icon" aria-hidden="true"></i> Completed`;
                     fileSizeText.textContent = `${fileSize} MB of ${fileSize} MB`;
                     progressBar.style.width = `100%`;
                     progressBar.style.backgroundColor = 'green';
-
+        
                     removeButtonContainer.style.display = 'block';
-
-                    const removeButton = uploadContainer.querySelector('.remove-button button');
+        
+                    const removeButton = uploadContainer.querySelector('.action-button > button:nth-child(1)');
                     removeButton.addEventListener('click', () => {
                         previewArea.innerHTML = '';
+                        selectedFile = null;  // Clear the selected file
                     });
+        
+                    const sendButton = uploadContainer.querySelector('.action-button > button:nth-child(2)');
+                    sendButton.addEventListener('click', uploadFileToServer);
                 } else {
-                    progress += 10;
+                    progress += 5;
                     progressBar.style.width = `${progress}%`;
                     uploadStatus.textContent = `${progress}%`;
                     fileSizeText.textContent = `${(progress / 100 * fileSize).toFixed(2)} MB of ${fileSize} MB`;
                 }
             }, 300);
+        }
+        
+        function uploadFileToServer() {
+            if (!selectedFile) {
+                alert("No file to upload!");
+                return;
+            }
+        
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+        
+            fetch("{% url 'upload_file'%}", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': getCSRFToken(),
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('File successfully uploaded:', data);
+            })
+            .catch(error => {
+                console.error('Error uploading file:', error);
+            });
+        }
+        
+        function getCSRFToken() {
+            let cookieValue = null;
+            const name = 'csrftoken';
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
         }
     </script>
 </body>
