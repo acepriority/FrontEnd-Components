@@ -8,52 +8,39 @@
 </head>
 <style>
     body {
-        font-family: Arial, sans-serif;
+        font-family: Calibri, 'Gill Sans', 'Gill Sans MT', 'Trebuchet MS', sans-serif;
         margin: 0;
         background-color: #f4f4f4;
     }
 
-    .wrapper, .drag-area, .cancel-btn, .file-info {
+    .upload-section {
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
     }
 
-    .img-area{
-        display: flex;
-        gap: 1rem;
-    }
-
-    .img-and-btn {
-        display: flex;
-        justify-content: space-between;
-    }
-
-    .wrapper {
+    .upload-section {
         margin: 1rem;
     }
 
     .drag-area {
         width: 50%;
         aspect-ratio: 1 / 0.3;
-    }
-    
-    .drag-area {
         padding: 1rem;
         border: 2px dashed #ccc;
         border-radius: 16px;
         text-align: center;
-        background-color: #f4f4f4;
+        background-color: #ffffff;
         cursor: pointer;
         transition: background-color 0.2s ease;
     }
-    
-    .drag-area.hover {
+
+    .drag-area:hover {
         background-color: #f0f8ff;
     }
-    
-    .area-heading h3, .area-sub-heading h4, .file-info p {
+
+    .area-heading h3, .area-sub-heading h4 {
         margin: 0;
         padding: 0;
     }
@@ -69,79 +56,94 @@
     }
 
     .preview-area {
-        margin: 1rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin-top: 20px;
     }
-    
-    #image-preview {
-        max-width: 100px;
-        max-height: 50px;
-        border-radius: 8px;
-        opacity: 0.5;
-        transition: opacity 0.3s;
-    }    
 
-    .progress-bar-container {
+    .image-upload-container {
+        width: 300px;
+        background-color: #ffffff;
+        padding: 0.5rem;
+        border-radius: 16px;
+        box-shadow: 1px 0px 1px 1px rgba(0, 0, 0, 0.1);
+    }
+
+    .upload-content {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .upload-progress-bar-container {
         width: 100%;
         height: 8px;
         background-color: #f3f3f3;
         border-radius: 10px;
-        margin-top: 20px;
         border: 1px solid #ccc;
-      }
-      
-      .progress-bar {
+        margin-top: 8px;
+    }
+
+    .upload-progress-bar {
         width: 0%;
         height: 100%;
-        background-color: #0046ff;
+        background-color: #ff9500;
         border-radius: 10px;
         transition: width 0.3s;
-      }
-
-      .cancel-btn {
-        display: none;
-        background-color: #f4f4f4;
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
     }
-    
-    .cancel-button {
-        position: relative;
-        background: none;
-        border: none;
-        cursor: pointer;
-        display: none;
+
+    .image-icon .material-symbols-outlined {
+        font-size: 40px;
     }
 
     .file-info {
-        margin-top: 10px;
-        text-align: center;
-        font-size: 14px;
-        color: #555;
-    }
-    
-    #file-name {
-        font-weight: bold;
-    }
-    
-    #file-size {
-        font-weight: normal;
-        color: #777;
+        width: 90%;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
     }
 
-    .scan-button {
-        display: none;
-        margin-top: 1rem;
+    .file-details {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .file-details h4, .file-size h4,
+    .remove-button button h4{
+        margin: 0;
+        padding: 0;
+        font-weight: bold;
+        font-size: small;
+    }
+
+    .upload-status {
+        text-align: center;
+    }
+
+    .upload-status h4,
+    .file-size h4 {
+        color: gray;
+    }
+
+    .remove-button button {
+        padding: 0.4rem;
+        border-radius: 6px;
         border: none;
-        background-color: #0046ff;
-        color: #ffff;
-        border-radius: 8px;
-        padding: 5px 15px;
+        background-color: #f6cdcd;
+        color: #fd0707;
         cursor: pointer;
+    }
+
+    .completed-icon {
+        color: green;
+        font-size: 14px;
     }
 </style>
 <body>
-    <div class="wrapper">
+    <div class="upload-section">
         <div class="drag-area" id="drag-area">
             <div class="upload-icon">
                 <span class="material-symbols-outlined">
@@ -152,198 +154,123 @@
                 <div class="area-heading">
                     <h3>Create or Import a custom classification</h3>
                 </div>
-                <div class="area-sub-heading">
+                <div class="area-sub-headings">
                     <h4>Maximum file size: 50 MB</h4>
                     <h4>Supported format: .JPEG/.JPG/.PNG/.SVG</h4>
                 </div>
             </div>
             <input type="file" id="file-input" hidden>
         </div>
-
-        <div class="preview-area" id="preview-area">
-            <div class="img-and-btn">
-                <div class="img-area">
-                    <img id="image-preview" src="" alt="Image Preview" style="display:none;">
-                    <div class="file-info" id="file-info" style="display:none;">
-                        <p id="file-name"></p>
-                        <p id="file-size"></p>
-                    </div>
-                </div>
-                <div class="cancel-btn" id="cancel-button">
-                    <button class="cancel-button" id="cancel-button-icon">
-                        <span class="material-symbols-outlined">
-                            close
-                        </span>
-                    </button>
-                </div>
-            </div>
-
-            <div class="progress-bar-container" id="progress-bar-container" style="display:none;">
-                <div class="progress-bar" id="progress-bar"></div>
-            </div>
-
-            <div class="submit-button">
-                <button class="scan-button" id="scan-button">scan</button>
-            </div>
-        </div>
     </div>
+
+    <div class="preview-area" id="preview-area"></div>
+
+    <script>
+        const dragArea = document.getElementById("drag-area");
+        const fileInput = document.getElementById("file-input");
+        const previewArea = document.getElementById("preview-area");
+
+        dragArea.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            dragArea.classList.add("hover");
+        });
+
+        dragArea.addEventListener("dragleave", () => {
+            dragArea.classList.remove("hover");
+        });
+
+        dragArea.addEventListener("drop", (e) => {
+            e.preventDefault();
+            dragArea.classList.remove("hover");
+
+            const files = e.dataTransfer.files;
+            if (files.length) {
+                handleFiles(files);
+            }
+        });
+
+        dragArea.addEventListener("click", () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener("change", () => {
+            const files = fileInput.files;
+            if (files.length) {
+                handleFiles(files);
+            }
+        });
+
+        function handleFiles(files) {
+            const file = files[0];
+    
+            if (file && file.size < 50 * 1024 * 1024) {
+                const fileName = file.name;
+                const fileSize = (file.size / 1024 / 1024).toFixed(2);
+                const uploadContainer = document.createElement('div');
+                uploadContainer.classList.add('image-upload-container');
+                uploadContainer.innerHTML = `
+                    <div class="upload-content">
+                        <div class="image-icon">
+                            <span class="material-symbols-outlined">image</span>
+                        </div>
+                        <div class="file-info">
+                            <div class="file-details">
+                                <div class="file-name"><h4>${fileName}</h4></div>
+                                <div class="upload-status"><h4>0%</h4></div>
+                            </div>
+                            <div class="upload-progress-bar-container">
+                                <div class="upload-progress-bar"></div>
+                            </div>
+                            <div class="file-size">
+                                <h4>0 MB of ${fileSize} MB</h4>
+                            </div>
+                            <div class="action-buttons" style="display: none;">
+                                <div class="remove-button">
+                                    <button>Remove</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+    
+                previewArea.innerHTML = '';
+                previewArea.appendChild(uploadContainer);
+    
+                simulateUpload(uploadContainer, fileSize);
+            } else {
+                alert('File is too large or unsupported.');
+            }
+        }
+    
+        function simulateUpload(uploadContainer, fileSize) {
+            const progressBar = uploadContainer.querySelector('.upload-progress-bar');
+            const uploadStatus = uploadContainer.querySelector('.upload-status h4');
+            const fileSizeText = uploadContainer.querySelector('.file-size h4');
+            const removeButtonContainer = uploadContainer.querySelector('.action-buttons');
+    
+            let progress = 0;
+            const interval = setInterval(() => {
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    uploadStatus.innerHTML = `<span class="material-symbols-outlined completed-icon">check_circle</span> Completed`;
+                    fileSizeText.textContent = `${fileSize} MB of ${fileSize} MB`;
+                    progressBar.style.width = `100%`;
+                    progressBar.style.backgroundColor = 'green';
+
+                    removeButtonContainer.style.display = 'block';
+
+                    const removeButton = uploadContainer.querySelector('.remove-button button');
+                    removeButton.addEventListener('click', () => {
+                        previewArea.innerHTML = '';
+                    });
+                } else {
+                    progress += 10;
+                    progressBar.style.width = `${progress}%`;
+                    uploadStatus.textContent = `${progress}%`;
+                    fileSizeText.textContent = `${(progress / 100 * fileSize).toFixed(2)} MB of ${fileSize} MB`;
+                }
+            }, 300);
+        }
+    </script>
 </body>
-<script>
-    const dragArea = document.getElementById("drag-area");
-    const fileInput = document.getElementById("file-input");
-    const previewArea = document.getElementById("preview-area");
-    const imagePreview = document.getElementById("image-preview");
-    const progressBarContainer = document.getElementById("progress-bar-container");
-    const progressBar = document.getElementById("progress-bar");
-    const cancelButton = document.getElementById("cancel-button");
-    const cancelButtonIcon = document.getElementById("cancel-button-icon");
-    const scanButton = document.getElementById("scan-button");
-
-    const fileNameElement = document.getElementById("file-name");
-    const fileSizeElement = document.getElementById("file-size");
-    const fileInfo = document.getElementById("file-info");
-
-    let uploadInterval = null; // To track the interval for the simulated upload
-    let isUploadCancelled = false; // Track if the upload was cancelled
-
-    dragArea.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      dragArea.classList.add("hover");
-    });
-
-    dragArea.addEventListener("dragleave", () => {
-      dragArea.classList.remove("hover");
-    });
-
-    dragArea.addEventListener("drop", (e) => {
-      e.preventDefault();
-      dragArea.classList.remove("hover");
-
-      const files = e.dataTransfer.files;
-      if (files.length) {
-        handleFiles(files);
-      }
-    });
-
-    dragArea.addEventListener("click", () => {
-      fileInput.click();
-    });
-
-    fileInput.addEventListener("change", () => {
-      const files = fileInput.files;
-      if (files.length) {
-        handleFiles(files);
-      }
-    });
-
-    cancelButton.addEventListener("click", () => {
-      cancelUpload();
-    });
-
-    function handleFiles(files) {
-      const file = files[0];
-      if (file.type.startsWith("image/")) {
-        stylePreviewArea();
-        previewArea.style.display = "block";
-        showProgressBar(true);
-        previewImage(file);  // Display the faint image immediately
-        simulateUpload(file);
-
-        // Display file name and size
-        fileNameElement.textContent = `${file.name}`;
-        fileSizeElement.textContent = `${formatFileSize(file.size)}`;
-        fileInfo.style.display = "block"; // Show the file info
-      } else {
-        alert("Please upload an image file.");
-      }
-    }
-
-    function formatFileSize(bytes) {
-        const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
-        if (bytes === 0) return "0 Bytes";
-        const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
-        return Math.round(bytes / Math.pow(1024, i), 2) + " " + sizes[i];
-    }
-
-    function simulateUpload(file) {
-      let progress = 0;
-      isUploadCancelled = false;
-      cancelButton.style.display = "block";
-      cancelButtonIcon.style.display = "block";
-      uploadInterval = setInterval(() => {
-        if (isUploadCancelled) {
-          clearInterval(uploadInterval);
-          resetUpload();
-          return;
-        }
-
-        progress += 10;
-        updateProgressBar(progress);
-
-        if (progress >= 100) {
-          clearInterval(uploadInterval);
-          showProgressBar(true);
-          progressBar.style.width = "100%";
-          imagePreview.style.opacity = 1;
-          scanButton.style.display = "block";
-        }
-      }, 300);
-    }
-
-    function updateProgressBar(value) {
-      progressBar.style.width = `${value}%`;
-    }
-
-    function previewImage(file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        imagePreview.src = e.target.result;
-        imagePreview.style.display = "block";
-        imagePreview.style.opacity = 0.5;
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function showProgressBar(show) {
-      if (show) {
-        progressBarContainer.style.display = "block";
-        progressBar.style.width = "0%";
-      } else {
-        progressBarContainer.style.display = "none";
-      }
-    }
-
-    cancelButton.addEventListener("click", () => {
-        if (progressBar.style.width !== "100%") {
-          // If the upload is still in progress, cancel the upload
-          cancelUpload();
-        } else {
-          // If the upload is completed, reset everything
-          resetUpload();
-        }
-      });
-      
-      function cancelUpload() {
-        isUploadCancelled = true; // Flag the upload as cancelled
-      }
-      
-      function resetUpload() {
-        progressBar.style.width = "0%";
-        imagePreview.style.display = "none";
-        fileInfo.style.display = "none";
-        cancelButton.style.display = "none";
-        scanButton.style.display = "none";
-        showProgressBar(false);
-        previewArea.style.display = "none";
-      }
-
-    function stylePreviewArea() {
-        previewArea.style.border = "2px solid #ccc";
-        previewArea.style.borderRadius = "16px";
-        previewArea.style.backgroundColor = "#f4f4f4";
-        previewArea.style.padding = "1rem";
-        previewArea.style.width = "50%";
-        previewArea.style.aspectRatio = "1 / 0.1"
-    }
-</script>
 </html>
